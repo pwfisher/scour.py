@@ -3154,6 +3154,8 @@ _options_parser.add_option("--protect-ids-prefix",
 	help="Don't change IDs starting with the given prefix")
 
 # Dangerous options, can change output
+_options_parser.add_option("--dangerous", default=False,
+	action="store_true", dest="dangerous", help="enable all dangerous options")
 _options_parser.add_option("--remove-whitespace", default=False,
 	action="store_true", dest="remove_whitespace", help="remove xml:space=\"preserve\" and whitespace")
 _options_parser.add_option("--remove-fill-rule", default=False,
@@ -3195,7 +3197,18 @@ def parse_args(args=None):
 		outfile = maybe_gziped_file(options.outfilename, "wb")
 	else:
 		outfile = sys.stdout
-		
+
+	if options.dangerous:
+		for dangerousOption in [
+			'remove_whitespace',
+			'remove_fill_rule',
+			'remove_doctype',
+			'remove_xlink_namespace_uri',
+			'remove_enable_background',
+			'remove_viewbox',
+		]:
+			setattr(options, dangerousOption, True)
+
 	return options, [infile, outfile]
 
 def getReport():
