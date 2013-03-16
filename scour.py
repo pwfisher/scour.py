@@ -2771,6 +2771,8 @@ def serializeXML(element, options, ind = 0, preserveWhitespace = False):
 		if attr.nodeName == 'id' or attr.nodeName == 'xml:id': continue
 		if options.remove_whitespace and attr.nodeName == 'xml:space': continue
 		if options.remove_xlink_namespace_uri and attr.nodeName == 'xmlns:xlink': continue
+		if options.remove_enable_background and attr.nodeName == 'enable-background': continue
+		if options.remove_viewbox and attr.nodeName == 'viewBox': continue
 		# if the attribute value contains a double-quote, use single-quotes
 		quot = '"'
 		if attr.nodeValue.find('"') != -1:
@@ -3160,6 +3162,10 @@ _options_parser.add_option("--remove-doctype", default=False,
 	action="store_true", dest="remove_doctype", help="remove DOCTYPE element")
 _options_parser.add_option("--remove-xlink-namespace-uri", default=False,
 	action="store_true", dest="remove_xlink_namespace_uri", help="remove xmlns:xlink=\"http://www.w3.org/1999/xlink\"")
+_options_parser.add_option("--remove-enable-background", default=False,
+	action="store_true", dest="remove_enable_background", help="remove svg element enable-background attribute")
+_options_parser.add_option("--remove-viewbox", default=False,
+	action="store_true", dest="remove_viewbox", help="remove svg element viewBox attribute")
 
 def maybe_gziped_file(filename, mode="r"):
 	if os.path.splitext(filename)[1].lower() in (".svgz", ".gz"):
