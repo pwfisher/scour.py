@@ -1840,7 +1840,6 @@ def cleanPath(element, options) :
 			x += sum(data[4::6])
 			y += sum(data[5::6])
 		elif cmd in ['z','Z']:
-			x, y = startx, starty
 			path[pathIndex] = ('z', data)
 	
 	# remove empty segments
