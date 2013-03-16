@@ -3095,16 +3095,16 @@ _options_parser.add_option("--disable-group-collapsing",
 	action="store_false", dest="group_collapse", default=True,
 	help="won't collapse <g> elements")
 _options_parser.add_option("--create-groups",
-	action="store_true", dest="group_create", default=False,
+	action="store_true", dest="group_create", default=True,
 	help="create <g> elements for runs of elements with identical attributes")
 _options_parser.add_option("--enable-id-stripping",
-	action="store_true", dest="strip_ids", default=False,
+	action="store_true", dest="strip_ids", default=True,
 	help="remove all un-referenced ID attributes")
 _options_parser.add_option("--enable-comment-stripping",
-	action="store_true", dest="strip_comments", default=False,
+	action="store_true", dest="strip_comments", default=True,
 	help="remove all <!-- --> comments")
 _options_parser.add_option("--shorten-ids",
-	action="store_true", dest="shorten_ids", default=False,
+	action="store_true", dest="shorten_ids", default=True,
 	help="shorten all ID attributes to the least number of letters possible")
 _options_parser.add_option("--disable-embed-rasters",
 	action="store_false", dest="embed_rasters", default=True,
@@ -3113,7 +3113,7 @@ _options_parser.add_option("--keep-editor-data",
 	action="store_true", dest="keep_editor_data", default=False,
 	help="won't remove Inkscape, Sodipodi or Adobe Illustrator elements and attributes")
 _options_parser.add_option("--remove-metadata",
-	action="store_true", dest="remove_metadata", default=False,
+	action="store_true", dest="remove_metadata", default=True,
 	help="remove <metadata> elements (which may contain license metadata etc.)")
 _options_parser.add_option("--renderer-workaround",
 	action="store_true", dest="renderer_workaround", default=True,
@@ -3122,7 +3122,7 @@ _options_parser.add_option("--no-renderer-workaround",
 	action="store_false", dest="renderer_workaround", default=True,
 	help="do not work around various renderer bugs (currently only librsvg)")
 _options_parser.add_option("--strip-xml-prolog",
-	action="store_true", dest="strip_xml_prolog", default=False,
+	action="store_true", dest="strip_xml_prolog", default=True,
 	help="won't output the <?xml ?> prolog")
 _options_parser.add_option("--enable-viewboxing",
 	action="store_true", dest="enable_viewboxing", default=False,
@@ -3141,7 +3141,7 @@ _options_parser.add_option("-q", "--quiet",
 	action="store_true", dest="quiet", default=False,
 	help="suppress non-error output")
 _options_parser.add_option("--indent",
-	action="store", type="string", dest="indent_type", default="space",
+	action="store", type="string", dest="indent_type", default="none",
 	help="indentation of the output: none, space, tab (default: %default)")
 _options_parser.add_option("--protect-ids-noninkscape",
 	action="store_true", dest="protect_ids_noninkscape", default=False,
@@ -3158,7 +3158,7 @@ _options_parser.add_option("--remove-whitespace", default=False,
 	action="store_true", dest="remove_whitespace", help="remove xml:space=\"preserve\" and whitespace")
 _options_parser.add_option("--remove-fill-rule", default=False,
 	action="store_true", dest="remove_fill_rule", help="remove fill-rule and clip-rule attributes")
-_options_parser.add_option("--remove-doctype", default=False,
+_options_parser.add_option("--remove-doctype", default=True,
 	action="store_true", dest="remove_doctype", help="remove DOCTYPE element")
 _options_parser.add_option("--remove-xlink-namespace-uri", default=False,
 	action="store_true", dest="remove_xlink_namespace_uri", help="remove xmlns:xlink=\"http://www.w3.org/1999/xlink\"")
