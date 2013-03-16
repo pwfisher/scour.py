@@ -334,6 +334,9 @@ default_attributes = { # excluded all attributes with 'auto' as default
 	'vector-effect': 'none',
 	'viewport-fill': 'none',
 	'viewport-fill-opacity': '1',
+	'x': '0px',
+	'y': '0px',
+	'version': '1.1',
 	}
 
 def isSameSign(a,b): return (a <= 0 and b <= 0) or (a >= 0 and b >= 0)
@@ -850,6 +853,14 @@ def removeFillRule(doc):
 	num = 0
 	pathElements = [element for element in doc.documentElement.getElementsByTagName('path')]
 	for element in pathElements:
+		if element.getAttribute('clip-rule'):
+			element.removeAttribute('clip-rule')
+			num += 1
+		if element.getAttribute('fill-rule'):
+			element.removeAttribute('fill-rule')
+			num += 1
+	groupElements = [element for element in doc.documentElement.getElementsByTagName('g')]
+	for element in groupElements:
 		if element.getAttribute('clip-rule'):
 			element.removeAttribute('clip-rule')
 			num += 1
@@ -3034,9 +3045,12 @@ def scourString(in_string, options=None):
 	for child in doc.childNodes:
 		if child.nodeType == 1:
 			total_output += "".join(lines)
-		else: # doctypes, entities, comments
+		elif child.nodeName == "svg":
+			if options.remove_doctype == False:
+				total_output += child.toxml() + '\n'
+		else: # entities, comments
 			total_output += child.toxml() + '\n'
-		
+
 	return total_output
 
 # used mostly by unit tests
@@ -3141,6 +3155,8 @@ _options_parser.add_option("--remove-whitespace", default=False,
 	action="store_true", dest="remove_whitespace", help="remove xml:space=\"preserve\" and whitespace")
 _options_parser.add_option("--remove-fill-rule", default=False,
 	action="store_true", dest="remove_fill_rule", help="remove fill-rule and clip-rule attributes")
+_options_parser.add_option("--remove-doctype", default=False,
+	action="store_true", dest="remove_doctype", help="remove DOCTYPE element")
 
 def maybe_gziped_file(filename, mode="r"):
 	if os.path.splitext(filename)[1].lower() in (".svgz", ".gz"):
