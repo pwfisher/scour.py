@@ -845,6 +845,20 @@ def removeMetadataElements(doc):
 	
 	return num
 
+def removeFillRule(doc):
+	global numAttrsRemoved
+	num = 0
+	pathElements = [element for element in doc.documentElement.getElementsByTagName('path')]
+	for element in pathElements:
+		if element.getAttribute('clip-rule'):
+			element.removeAttribute('clip-rule')
+			num += 1
+		if element.getAttribute('fill-rule'):
+			element.removeAttribute('fill-rule')
+			num += 1
+	numAttrsRemoved += num
+	return num
+
 def removeNestedGroups(node):
 	""" 
 	This walks further and further down the tree, removing groups
@@ -2744,6 +2758,7 @@ def serializeXML(element, options, ind = 0, preserveWhitespace = False):
 	for num in xrange(attrList.length) :
 		attr = attrList.item(num)
 		if attr.nodeName == 'id' or attr.nodeName == 'xml:id': continue
+		if options.remove_whitespace and attr.nodeName == 'xml:space': continue
 		# if the attribute value contains a double-quote, use single-quotes
 		quot = '"'
 		if attr.nodeValue.find('"') != -1:
@@ -2992,6 +3007,10 @@ def scourString(in_string, options=None):
 	if options.enable_viewboxing:
 		properlySizeDoc(doc.documentElement, options)
 
+	# remove fill rule if the user wants to
+	if options.remove_fill_rule:
+		removeFillRule(doc)
+
 	# output the document as a pretty string with a single space for indent
 	# NOTE: removed pretty printing because of this problem:
 	# http://ronrothman.com/public/leftbraned/xml-dom-minidom-toprettyxml-and-silly-whitespace/
@@ -3116,6 +3135,12 @@ _options_parser.add_option("--protect-ids-list",
 _options_parser.add_option("--protect-ids-prefix",
 	action="store", type="string", dest="protect_ids_prefix", default=None,
 	help="Don't change IDs starting with the given prefix")
+
+# Dangerous options, can change output
+_options_parser.add_option("--remove-whitespace", default=False,
+	action="store_true", dest="remove_whitespace", help="remove xml:space=\"preserve\" and whitespace")
+_options_parser.add_option("--remove-fill-rule", default=False,
+	action="store_true", dest="remove_fill_rule", help="remove fill-rule and clip-rule attributes")
 
 def maybe_gziped_file(filename, mode="r"):
 	if os.path.splitext(filename)[1].lower() in (".svgz", ".gz"):
