@@ -3167,6 +3167,7 @@ _options_parser.add_option("--remove-enable-background", default=False,
 	action="store_true", dest="remove_enable_background", help="remove svg element enable-background attribute")
 _options_parser.add_option("--remove-viewbox", default=False,
 	action="store_true", dest="remove_viewbox", help="remove svg element viewBox attribute")
+# TODO remove xmlns:foo
 
 def maybe_gziped_file(filename, mode="r"):
 	if os.path.splitext(filename)[1].lower() in (".svgz", ".gz"):
