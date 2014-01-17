@@ -2174,7 +2174,7 @@ def parseListOfPoints(s):
 			nums[i + 1] = getcontext().create_decimal(nums[i + 1])
 		except decimal.InvalidOperation: # one of the lengths had a unit or is an invalid number
 			return []
-		
+
 		i += 2
 
 	return nums
@@ -2292,7 +2292,11 @@ def scourUnitlessLength(length, needsRendererWorkaround=False): # length is of a
 	# remove those
 	if int(length) == length:
 		length = getcontext().create_decimal(int(length))
-	
+
+	if options.remove_decimal_points:
+		length *= 10
+		length = getcontext().create_decimal(round(length))
+
 	# gather the non-scientific notation version of the coordinate.
 	# this may actually be in scientific notation if the value is
 	# sufficiently large or small, so this is a misnomer.
@@ -2665,27 +2669,44 @@ def properlySizeDoc(docElement, options):
 	vbSep = re.split("\\s*\\,?\\s*", docElement.getAttribute('viewBox'), 3)
 	# if we have a valid viewBox we need to check it
 	vbWidth,vbHeight = 0,0
+	foundProblem = False
 	if len(vbSep) == 4:
 		try:
 			# if x or y are specified and non-zero then it is not ok to overwrite it
 			vbX = float(vbSep[0])
 			vbY = float(vbSep[1])
 			if vbX != 0 or vbY != 0:
-				return
-				
+				foundProblem = True
+
 			# if width or height are not equal to doc width/height then it is not ok to overwrite it
 			vbWidth = float(vbSep[2])
 			vbHeight = float(vbSep[3])
 			if vbWidth != w.value or vbHeight != h.value:
-				return
+				foundProblem = True
+
 		# if the viewBox did not parse properly it is invalid and ok to overwrite it
 		except ValueError:
-			pass
-	
+			foundProblem = False
+
+	if options.remove_decimal_points:
+		vbX *= 10
+		vbX = round(vbX)
+		vbY *= 10
+		vbY = round(vbY)
+		formatString = '%i %i %i %i'
+	else:
+		formatString = '%s %s %s %s'
+		if foundProblem: # must scale viewbox if removing decimal points
+			return
+
 	# at this point it's safe to set the viewBox and remove width/height
-	docElement.setAttribute('viewBox', '0 0 %s %s' % (w.value, h.value))
-	docElement.removeAttribute('width')
-	docElement.removeAttribute('height')
+	docElement.setAttribute('viewBox', formatString % (vbX, vbY, w.value, h.value))
+	if options.remove_decimal_points:
+		docElement.setAttribute('width', '%d' % (w.value / 10))
+		docElement.setAttribute('height', '%d' % (h.value / 10))
+	else: # free scaling
+		docElement.removeAttribute('width')
+		docElement.removeAttribute('height')
 
 def remapNamespacePrefix(node, oldprefix, newprefix):
 	if node == None or node.nodeType != 1: return
@@ -2771,7 +2792,7 @@ def serializeXML(element, options, ind = 0, preserveWhitespace = False):
 		if options.remove_whitespace and attr.nodeName == 'xml:space': continue
 		if options.remove_xlink_namespace_uri and attr.nodeName == 'xmlns:xlink': continue
 		if options.remove_enable_background and attr.nodeName == 'enable-background': continue
-		if options.remove_viewbox and attr.nodeName == 'viewBox': continue
+		if options.remove_viewbox and not options.remove_decimal_points and attr.nodeName == 'viewBox': continue
 		# if the attribute value contains a double-quote, use single-quotes
 		quot = '"'
 		if attr.nodeValue.find('"') != -1:
@@ -3017,7 +3038,7 @@ def scourString(in_string, options=None):
 			embedRasters(elem, options)		
 
 	# properly size the SVG document (ideally width/height should be 100% with a viewBox)
-	if options.enable_viewboxing:
+	if options.enable_viewboxing or options.remove_decimal_points:
 		properlySizeDoc(doc.documentElement, options)
 
 	# remove fill rule if the user wants to
@@ -3167,6 +3188,8 @@ _options_parser.add_option("--remove-enable-background", default=False,
 	action="store_true", dest="remove_enable_background", help="remove svg element enable-background attribute")
 _options_parser.add_option("--remove-viewbox", default=False,
 	action="store_true", dest="remove_viewbox", help="remove svg element viewBox attribute")
+_options_parser.add_option("--remove-decimal-point", default=False,
+	action="store_true", dest="remove_decimal_points", help="remove decimal points from data")
 # TODO remove xmlns:foo
 
 def maybe_gziped_file(filename, mode="r"):
@@ -3206,6 +3229,7 @@ def parse_args(args=None):
 			'remove_xlink_namespace_uri',
 			'remove_enable_background',
 			'remove_viewbox',
+			'remove_decimal_points',
 		]:
 			setattr(options, dangerousOption, True)
 
